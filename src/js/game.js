@@ -13,6 +13,7 @@
     this.score = 0;
     this.gameStarted = false;
     this.cursors = null;
+    this.lastButton = null;
   }
 
   Game.prototype = {
@@ -24,6 +25,7 @@
       this.map = this.add.tilemap('mario');
       this.map.addTilesetImage('Mario_Tiles', 'tiles');
 
+      // Setup for Tile Layer 1
       this.map.setCollisionBetween(414, 415);
       this.map.setCollisionBetween(451, 452);
 
@@ -39,9 +41,9 @@
       this.snake.events.onOutOfBounds.add(this.boundsHit, this);
 
       /* Coin */
-      this.coin = this.add.sprite(this.rnd.between(0, 25) * 16,
-                                  this.rnd.between(0, 25) * 16, 'sprites', 'gold-coin1');
+      this.coin = this.add.sprite(0, 0, 'sprites', 'gold-coin1');
       this.coin.animations.add('spin', ['gold-coin1', 'gold-coin2', 'gold-coin3', 'gold-coin4'], 10, true, false);
+      this.coin.kill();
 
       /* Text */
       this.scoreText = this.add.text(32, this.world.height - 50, 'score: 0', { font: '20px Arial', fill: '#ffffff', align: 'left' });
@@ -62,38 +64,97 @@
           this.collectCoin();
         }
 
+        // perform any adjustments
+        if (this.isSnakeMovingInDirection('up') || this.isSnakeMovingInDirection('down')) {
+          this.snake.x = Math.floor(this.snake.x/16) * 16;
+        } else if (this.isSnakeMovingInDirection('left') || this.isSnakeMovingInDirection('right')) {
+          this.snake.y = Math.floor(this.snake.y/16) * 16;
+        }
+
+        // only take action on button press when snake is on top of grid tile
+        if (this.lastButton !== null && this.snake.x % 16 === 0 && this.snake.y % 16 === 0) {
+          if (this.isSnakeMovingInDirection('up') || this.isSnakeMovingInDirection('down')) {
+            if (this.lastButton === 'right' || this.lastButton === 'left') {
+              this.changeSnakeDir(this.lastButton);
+              this.lastButton = null;
+            }
+          } else if (this.isSnakeMovingInDirection('right') || this.isSnakeMovingInDirection('left')) {
+            if (this.lastButton === 'up' || this.lastButton === 'down') {
+              this.changeSnakeDir(this.lastButton);
+              this.lastButton = null;
+            }
+          }
+        }
+
+        // queue button press
         if (this.cursors.left.isDown) {
-          this.snake.body.velocity.y = 0;
-          this.snake.body.velocity.x = -100;
+          this.lastButton = 'left';
         } else if (this.cursors.right.isDown) {
-          this.snake.body.velocity.y = 0;
-          this.snake.body.velocity.x = 100;
+          this.lastButton = 'right';
         } else if (this.cursors.up.isDown) {
-          this.snake.body.velocity.y = -100;
-          this.snake.body.velocity.x = 0;
+          this.lastButton = 'up';
         } else if (this.cursors.down.isDown) {
-          this.snake.body.velocity.y = 100;
-          this.snake.body.velocity.x = 0;
+          this.lastButton = 'down';
         }
       }
+    },
+
+    changeSnakeDir: function(dir) {
+      var baseVelocity = 60;
+
+      if (dir === 'left') {
+        this.snake.body.velocity.y = 0;
+        this.snake.body.velocity.x = baseVelocity * -2;
+      } else if (dir === 'right') {
+        this.snake.body.velocity.y = 0;
+        this.snake.body.velocity.x = baseVelocity * 2;
+      } else if (dir === 'up') {
+        this.snake.body.velocity.y = baseVelocity * -2;
+        this.snake.body.velocity.x = 0;
+      } else if (dir === 'down') {
+        this.snake.body.velocity.y = baseVelocity * 2;
+        this.snake.body.velocity.x = 0;
+      }
+    },
+
+    isSnakeMovingInDirection: function (dir) {
+      var movingDir = null;
+
+      if (this.snake.body.velocity.y > 0) {
+        movingDir = 'down';
+      } else if (this.snake.body.velocity.y < 0) {
+        movingDir = 'up';
+      } else if (this.snake.body.velocity.x > 0) {
+        movingDir = 'right';
+      } else if (this.snake.body.velocity.x < 0) {
+        movingDir = 'left';
+      }
+
+      // return true if matches input
+      return movingDir === dir;
     },
 
     startGame: function () {
       if (!this.gameStarted) {
         this.gameStarted = true;
-        this.initSnake();
-        this.introText.visible = false;
-        this.coin.revive();
-        this.coin.animations.play('spin');
-      }
-    },
 
-    initSnake: function () {
-      this.snake.x = 0;
-      this.snake.y = 0;
-      this.snake.body.velocity.y = 100;
-      this.snake.body.velocity.x = 0;
-      this.snake.revive();
+        // reset snake
+        this.snake.revive();
+        this.snake.x = 0;
+        this.snake.y = 0;
+        this.changeSnakeDir('down');
+
+        // hide text
+        this.introText.visible = false;
+
+        // reset coin
+        this.coin.revive();
+        this.moveCoinToRandomPos();
+        this.coin.animations.play('spin');
+
+        // reset button queued
+        this.lastButton = null;
+      }
     },
 
     boundsHit: function () {
@@ -110,11 +171,15 @@
     },
 
     collectCoin: function() {
-      var snakeCoinOverlap = true;
-      var layerCoinOverlap = true;
-
       this.score += 10;
       this.scoreText.text = 'score: ' + this.score;
+
+      this.moveCoinToRandomPos();
+    },
+
+    moveCoinToRandomPos: function() {
+      var snakeCoinOverlap = true;
+      var layerCoinOverlap = true;
 
       while (snakeCoinOverlap || layerCoinOverlap) {
         this.coin.x = this.rnd.between(0, 25) * 16;
