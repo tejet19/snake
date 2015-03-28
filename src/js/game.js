@@ -32,7 +32,7 @@
 
       this.cursors = this.input.keyboard.createCursorKeys();
 
-      this.snake = this.add.sprite(0, 0, 'player');
+      this.snake = this.add.sprite(0, 0, 'sprites', 'blue-shell');
       this.physics.enable(this.snake);
       this.snake.checkWorldBounds = true;
 
@@ -40,11 +40,10 @@
 
       /* Coin */
       this.coin = this.add.sprite(this.rnd.between(0, 25) * 16,
-                                  this.rnd.between(0, 25) * 16, 'coins', 'coin1');
-      this.coin.animations.add('spin', ['coin1', 'coin2', 'coin3', 'coin4'], 10, true, false);
+                                  this.rnd.between(0, 25) * 16, 'sprites', 'gold-coin1');
+      this.coin.animations.add('spin', ['gold-coin1', 'gold-coin2', 'gold-coin3', 'gold-coin4'], 10, true, false);
 
       /* Text */
-
       this.scoreText = this.add.text(32, this.world.height - 50, 'score: 0', { font: '20px Arial', fill: '#ffffff', align: 'left' });
 
       this.livesText = this.add.text(this.world.width - 32, this.world.height - 50, 'lives: 3', { font: '20px Arial', fill: '#ffffff', align: 'left' });
@@ -62,7 +61,7 @@
         if (checkOverlap(this.snake, this.coin)) {
           this.collectCoin();
         }
-        
+
         if (this.cursors.left.isDown) {
           this.snake.body.velocity.y = 0;
           this.snake.body.velocity.x = -100;

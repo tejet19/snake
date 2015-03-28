@@ -13,13 +13,15 @@
 
       this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
       this.load.setPreloadSprite(this.asset);
-      
+
       this.loadResources();
     },
-      
+
     loadResources: function () {
-      this.load.image('player', 'assets/player.png');
-      this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
+      this.load.tilemap('mario', 'assets/tilemaps/mario-level1.json', null, Phaser.Tilemap.TILED_JSON);
+      this.load.image('tiles', 'assets/tilemaps/Mario_Tiles.png');
+
+      this.load.atlas('sprites', 'assets/tilemaps/Mario_Tiles.png', 'assets/tilemaps/sprites.json');
     },
 
     create: function () {
