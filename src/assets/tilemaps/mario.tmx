@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" width="26" height="26" tilewidth="16" tileheight="16">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="26" tilewidth="16" tileheight="16" nextobjectid="1">
  <tileset firstgid="1" name="Mario_Tiles" tilewidth="16" tileheight="16">
   <image source="Mario_Tiles.png" trans="ffffff" width="592" height="272"/>
  </tileset>
- <layer name="Tile Layer 1" width="26" height="26">
+ <layer name="Tile Layer 1" width="26" height="26" visible="0">
   <data encoding="base64" compression="zlib">
    eJxjYBgFlIJ5jAwM8xlpb85hoNwRKthDLXNGwSgYboBaeZkQGM2Do2AUYAej9enIBQBQlw3p
+  </data>
+ </layer>
+ <layer name="Tile Layer 2" width="26" height="26">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAP2AjIUwuw4WAPN3vYh6g9uOwcrPawEcDsaGrJtYdUNw01ewiFI7XsIRYQsqeDgfZlFswOdP+Ti4m1g9pg1I6RaQcnnezgHAZ2sNHYDgYG2sf5UAIAxxoIbA==
   </data>
  </layer>
 </map>

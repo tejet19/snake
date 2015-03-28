@@ -14,6 +14,7 @@
     this.gameStarted = false;
     this.cursors = null;
     this.lastButton = null;
+    this.level = 2;
   }
 
   Game.prototype = {
@@ -25,11 +26,17 @@
       this.map = this.add.tilemap('mario');
       this.map.addTilesetImage('Mario_Tiles', 'tiles');
 
-      // Setup for Tile Layer 1
-      this.map.setCollisionBetween(414, 415);
-      this.map.setCollisionBetween(451, 452);
+      if (this.level === 1) {
+        // Setup for Tile Layer 1
+        this.layer = this.map.createLayer('Tile Layer 1');
+        this.map.setCollisionBetween(414, 415);
+        this.map.setCollisionBetween(451, 452);
+      } else if (this.level === 2) {
+        // Setup for Tile Layer 2
+        this.layer = this.map.createLayer('Tile Layer 2');
+        this.map.setCollision([6, 7, 136], true, this.layer);
+      }
 
-      this.layer = this.map.createLayer('Tile Layer 1');
       this.layer.resizeWorld();
 
       this.cursors = this.input.keyboard.createCursorKeys();
@@ -136,16 +143,13 @@
 
     startGame: function () {
       if (!this.gameStarted) {
-        this.gameStarted = true;
-
-        // reset snake
-        this.snake.revive();
-        this.snake.x = 0;
-        this.snake.y = 0;
+        // start moving snake
         this.changeSnakeDir('down');
 
         // hide text
         this.introText.visible = false;
+        this.livesText.text = 'lives: ' + this.lives;
+        this.scoreText.text = 'score: ' + this.score;
 
         // reset coin
         this.coin.revive();
@@ -154,19 +158,28 @@
 
         // reset button queued
         this.lastButton = null;
+
+        this.gameStarted = true;
       }
     },
 
     boundsHit: function () {
-      this.snake.kill();
-      this.coin.kill();
-      this.lives--;
-      this.livesText.text = 'lives: ' + this.lives;
-      this.gameStarted = false;
-      if (this.lives === 0) {
-        this.gameOver();
-      } else {
-        this.resetLevel();
+      if (this.gameStarted) {
+        // reset snake
+        this.snake.x = 0;
+        this.snake.y = 0;
+        this.snake.body.velocity.x = 0;
+        this.snake.body.velocity.y = 0;
+
+        this.coin.kill();
+        this.lives--;
+        this.livesText.text = 'lives: ' + this.lives;
+        this.gameStarted = false;
+        if (this.lives === 0) {
+          this.gameOver();
+        } else {
+          this.resetLevel();
+        }
       }
     },
 
@@ -197,6 +210,7 @@
     gameOver: function() {
       this.introText.text = 'Game Over!';
       this.introText.visible = true;
+      this.lives = 3;
     }
   };
 
