@@ -4,9 +4,14 @@
   function Boot() {}
 
   Boot.prototype = {
-    
+
     preload: function () {
       this.load.image('preloader', 'assets/preloader.gif');
+      this.load.tilemap('mario', 'assets/tilemaps/mario-level1.json', null, Phaser.Tilemap.TILED_JSON);
+      this.load.image('tiles', 'assets/tilemaps/Mario_Tiles.png');
+      this.load.image('player', 'assets/player.png');
+
+      this.load.atlas('coins', 'assets/coins.png', 'assets/coins.json');
     },
 
     create: function () {
@@ -32,4 +37,3 @@
   window['snake'].Boot = Boot;
 
 }());
-
