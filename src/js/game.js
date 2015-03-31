@@ -71,7 +71,7 @@
     update: function () {
       if (this.gameStarted) {
         this.physics.arcade.collide(this.snake, this.layer, this.boundsHit, null, this);
-        if (checkOverlap(this.snake, this.coin)) {
+        if (this.isSnakeOverlappingCoin()) {
           this.collectCoin();
         }
 
@@ -274,15 +274,29 @@
       this.introText.text = 'Game Over!';
       this.introText.visible = true;
       this.lives = 3;
+    },
+
+    isSnakeOverlappingCoin: function() {
+      var snakeBounds = this.snake.getBounds();
+      var coinBounds = this.coin.getBounds();
+
+      if (Phaser.Rectangle.intersects(snakeBounds, coinBounds)) {
+        // if snake is moving up/down, overlap along x-axis boundaries should not trigger an overlap
+        if (this.isSnakeMovingInDirection('up') || this.isSnakeMovingInDirection('down')) {
+          if (snakeBounds.x !== coinBounds.x + coinBounds.width && coinBounds.x !== snakeBounds.x + snakeBounds.width) {
+            // objects not touching along x-axis
+            return true;
+          }
+        } else if (this.isSnakeMovingInDirection('left') || this.isSnakeMovingInDirection('right')) {
+          if (snakeBounds.y !== coinBounds.y + coinBounds.height && coinBounds.y !== snakeBounds.y + snakeBounds.height) {
+            // objects not touching along x-axis
+            return true;
+          }
+        }
+      }
+      return false;
     }
   };
-
-  function checkOverlap(spriteA, spriteB) {
-    var boundsA = spriteA.getBounds();
-    var boundsB = spriteB.getBounds();
-
-    return Phaser.Rectangle.intersects(boundsA, boundsB);
-  }
 
   window['snake'] = window['snake'] || {};
   window['snake'].Game = Game;
