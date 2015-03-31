@@ -76,18 +76,26 @@
         }
 
         // perform any adjustments
-        if (this.isSnakeMovingInDirection('up')) {
-          // make sure snake is positioned directly along x-axis tile boundary
-          this.snake.x = Math.floor(this.snake.x/16) * 16;
-        } else if (this.isSnakeMovingInDirection('down')) {
-          // make sure snake is positioned directly along x-axis tile boundary
-          this.snake.x = Math.ceil(this.snake.x/16) * 16;
-        } else if (this.isSnakeMovingInDirection('left')) {
-          // make sure snake is positioned directly along y-axis tile boundary
-          this.snake.y = Math.floor(this.snake.y/16) * 16;
-        } else if (this.isSnakeMovingInDirection('right')) {
-          // make sure snake is positioned directly along y-axis tile boundary
-          this.snake.y = Math.ceil(this.snake.y/16) * 16;
+        if (this.isSnakeMovingInDirection('up') || this.isSnakeMovingInDirection('down')) {
+          // check if snake is not along x-axis
+          if (this.snake.x % 16 !== 0) {
+            // set x to nearest multiple of 16
+            if (this.snake.x % 16 < 8) {
+              this.snake.x = Math.floor(this.snake.x/16) * 16;
+            } else {
+              this.snake.x = Math.ceil(this.snake.x/16) * 16;
+            }
+          }
+        } else if (this.isSnakeMovingInDirection('left') || this.isSnakeMovingInDirection('right')) {
+          // check if snake is not along y-axis
+          if (this.snake.y % 16 !== 0) {
+            // set y to nearest multiple of 16
+            if (this.snake.y % 16 < 8) {
+              this.snake.y = Math.floor(this.snake.y/16) * 16;
+            } else {
+              this.snake.y = Math.ceil(this.snake.y/16) * 16;
+            }
+          }
         }
 
         // only take action on button press when snake is on top of grid tile
