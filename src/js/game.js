@@ -35,6 +35,10 @@
         // Setup for Tile Layer 2
         this.layer = this.map.createLayer('Tile Layer 2');
         this.map.setCollision([6, 7, 136], true, this.layer);
+      } else if (this.level === 3) {
+        // Setup for Tile Layer 3
+        this.layer = this.map.createLayer('Tile Layer 3');
+        this.map.setCollision([6], true, this.layer);
       }
 
       this.layer.resizeWorld();

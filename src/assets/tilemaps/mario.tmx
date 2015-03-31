@@ -8,9 +8,14 @@
    eJxjYBgFlIJ5jAwM8xlpb85hoNwRKthDLXNGwSgYboBaeZkQGM2Do2AUYAej9enIBQBQlw3p
   </data>
  </layer>
- <layer name="Tile Layer 2" width="26" height="26">
+ <layer name="Tile Layer 2" width="26" height="26" visible="0">
   <data encoding="base64" compression="zlib">
    eJxjYMAP2AjIUwuw4WAPN3vYh6g9uOwcrPawEcDsaGrJtYdUNw01ewiFI7XsIRYQsqeDgfZlFswOdP+Ti4m1g9pg1I6RaQcnnezgHAZ2sNHYDgYG2sf5UAIAxxoIbA==
+  </data>
+ </layer>
+ <layer name="Tile Layer 3" width="26" height="26">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAP2AjIUwsMR3vQMb3AYLYLW7gQG07U9teoXbQ1j152kRt+pNpFiV9JcSOlZhFrFzHqqGEXNdzDDsXklh3kuokaYDjbRSoeBaMAHwAARtMBrQ==
   </data>
  </layer>
 </map>
