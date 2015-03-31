@@ -14,7 +14,7 @@
     this.gameStarted = false;
     this.cursors = null;
     this.lastButton = null;
-    this.level = 2;
+    this.level = 1;
   }
 
   Game.prototype = {
@@ -76,10 +76,18 @@
         }
 
         // perform any adjustments
-        if (this.isSnakeMovingInDirection('up') || this.isSnakeMovingInDirection('down')) {
+        if (this.isSnakeMovingInDirection('up')) {
+          // make sure snake is positioned directly along x-axis tile boundary
           this.snake.x = Math.floor(this.snake.x/16) * 16;
-        } else if (this.isSnakeMovingInDirection('left') || this.isSnakeMovingInDirection('right')) {
+        } else if (this.isSnakeMovingInDirection('down')) {
+          // make sure snake is positioned directly along x-axis tile boundary
+          this.snake.x = Math.ceil(this.snake.x/16) * 16;
+        } else if (this.isSnakeMovingInDirection('left')) {
+          // make sure snake is positioned directly along y-axis tile boundary
           this.snake.y = Math.floor(this.snake.y/16) * 16;
+        } else if (this.isSnakeMovingInDirection('right')) {
+          // make sure snake is positioned directly along y-axis tile boundary
+          this.snake.y = Math.ceil(this.snake.y/16) * 16;
         }
 
         // only take action on button press when snake is on top of grid tile
@@ -87,27 +95,67 @@
           if (this.isSnakeMovingInDirection('up') || this.isSnakeMovingInDirection('down')) {
             if (this.lastButton === 'right' || this.lastButton === 'left') {
               this.changeSnakeDir(this.lastButton);
-              this.lastButton = null;
             }
           } else if (this.isSnakeMovingInDirection('right') || this.isSnakeMovingInDirection('left')) {
             if (this.lastButton === 'up' || this.lastButton === 'down') {
               this.changeSnakeDir(this.lastButton);
-              this.lastButton = null;
             }
           }
         }
 
-        // queue button press
-        if (this.cursors.left.isDown) {
-          this.lastButton = 'left';
-        } else if (this.cursors.right.isDown) {
-          this.lastButton = 'right';
-        } else if (this.cursors.up.isDown) {
-          this.lastButton = 'up';
-        } else if (this.cursors.down.isDown) {
-          this.lastButton = 'down';
+        // queue button press or swipe
+        if (this.isSnakeMovingInDirection('up') || this.isSnakeMovingInDirection('down')) {
+          // only allow changing direction to left/right when moving up/down
+          if (this.cursors.left.isDown || this.isSwiping('left')) {
+            this.lastButton = 'left';
+          } else if (this.cursors.right.isDown || this.isSwiping('right')) {
+            this.lastButton = 'right';
+          }
+        } else if (this.isSnakeMovingInDirection('right') || this.isSnakeMovingInDirection('left')) {
+          // only allow changing direction to up/down when moving left/right
+          if (this.cursors.up.isDown || this.isSwiping('up')) {
+            this.lastButton = 'up';
+          } else if (this.cursors.down.isDown || this.isSwiping('down')) {
+            this.lastButton = 'down';
+          }
         }
       }
+    },
+
+    isSwiping: function(dir) {
+      var distanceThreshold = 16; // in pixels
+      var durationMin = 50; // in ms
+      var durationMax = 1000; // in ms
+
+      if (Phaser.Point.distance(this.input.activePointer.position, this.input.activePointer.positionDown) > distanceThreshold &&
+          this.input.activePointer.duration > durationMin && this.input.activePointer.duration < durationMax)
+      {
+        // force direction of swipe to only be ONE of the directions, not multiple
+        // to do this, find the max distance for each swiped direction and return the
+        // direction with the max
+
+        var firstPointX = this.input.activePointer.positionDown.x;
+        var firstPointY = this.input.activePointer.positionDown.y;
+        var lastPointX = this.input.activePointer.position.x;
+        var lastPointY = this.input.activePointer.position.y;
+
+        var leftDist = firstPointX - lastPointX;
+        var rightDist = lastPointX - firstPointX;
+        var upDist = firstPointY - lastPointY;
+        var downDist = lastPointY - firstPointY;
+
+        var max = Math.max(leftDist, rightDist, upDist, downDist);
+        if (dir === 'left') {
+          return max === leftDist;
+        } else if (dir === 'right') {
+          return max === rightDist;
+        } else if (dir === 'up') {
+          return max === upDist;
+        } else if (dir === 'down') {
+          return max === downDist;
+        }
+      }
+      return false;
     },
 
     changeSnakeDir: function(dir) {
@@ -126,6 +174,8 @@
         this.snake.body.velocity.y = baseVelocity * 2;
         this.snake.body.velocity.x = 0;
       }
+
+      this.lastButton = null;
     },
 
     isSnakeMovingInDirection: function (dir) {
@@ -147,9 +197,6 @@
 
     startGame: function () {
       if (!this.gameStarted) {
-        // start moving snake
-        this.changeSnakeDir('down');
-
         // hide text
         this.introText.visible = false;
         this.livesText.text = 'lives: ' + this.lives;
@@ -163,7 +210,11 @@
         // reset button queued
         this.lastButton = null;
 
+        // start game
         this.gameStarted = true;
+
+        // start moving snake
+        this.changeSnakeDir('down');
       }
     },
 
